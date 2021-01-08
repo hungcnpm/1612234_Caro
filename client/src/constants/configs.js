@@ -19,7 +19,7 @@ class Config extends Component {
 
     static initialState = {
 
-        // This section is for login & register & active
+        // This section is for user acount
         isFetching: false,
         message: null,
 

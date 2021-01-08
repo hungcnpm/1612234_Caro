@@ -51,7 +51,8 @@ export default function handleGetInfo(state = Config.initialState, action) {
                 return {
                     ...state,
                     isFetching: false,
-                    message: action.message
+                    message: action.message,
+                    userInfo: null
                 }
             }
             else {

@@ -1,7 +1,6 @@
 import fetch from 'cross-fetch';
 import ActionType from '../constants/actionTypes';
 import config from '../config';
-
 export function actionLogin(status, message) {
     return {
         type: ActionType.LOGIN,
@@ -10,9 +9,11 @@ export function actionLogin(status, message) {
     };
 }
 
-export default function fetchLogin(username, password) {
+export default function fetchLogin(username, password, history) {
+
 
     return dispatch => {
+        
   
         dispatch(actionLogin('REQUEST', 'Xin vui lòng đợi...'));
 
@@ -39,7 +40,8 @@ export default function fetchLogin(username, password) {
 
                 // Redirect immediately, no need to dispatch SUCCESS action
                 localStorage.setItem('token', json.token);
-                window.location.href = '/';
+                dispatch(actionLogin('SUCCESS', json.message));
+                history.push( '/');
             }
             else {
                 dispatch(actionLogin('FAILED', json.message));

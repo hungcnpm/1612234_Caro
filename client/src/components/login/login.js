@@ -1,15 +1,10 @@
 import React, { useState } from 'react';
-import { Button, FormGroup, FormControl } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
-import logo from '../../logo.svg';
-import facebookImg from '../../images/facebook.png';
-import googleImg from '../../images/google.png';
+import { Link , useHistory} from 'react-router-dom';
 import './css/login.css';
-import config from '../../config';
 import authSvg from '../../assests/login.svg';
 
 function Login(props) {
-
+  const history = useHistory();
     // Bad code for facebook redirect and get token
     const address = window.location.href;
     if (address.indexOf('?token=') !== -1) {
@@ -18,7 +13,7 @@ function Login(props) {
             token = token.substr(0, token.indexOf('#chouser'));
         }
         localStorage.setItem('token', token);
-        window.location.href = '/';
+        history.push('/') ;
     }
 
     const [username, setUsername] = useState('');
@@ -34,7 +29,7 @@ function Login(props) {
   
     function handleSubmit(event) {
         event.preventDefault();
-        actions.fetchLogin(username, password);
+        actions.fetchLogin(username, password, history);
     }
 
     return (
@@ -79,12 +74,12 @@ function Login(props) {
                     type="password"
                     placeholder="Mật khẩu"
                     onChange={e => setPassword(e.target.value)}
+                    autoComplete = "on"
                     value={password}
                   />
                   <button
                     type="submit"
                     className={` mt-4 tracking-wide font-semibold bg-indigo-500 text-gray-100 w-full py-4 rounded-lg ${validateForm()?`hover:bg-indigo-700 transition-all duration-300` : ''} ease-in-out flex items-center justify-center focus:shadow-outline focus:outline-none`}
-                    block
                     disabled={!validateForm()}
                   >
                     <i className="fas fa-sign-in-alt  w-6  -ml-2" />

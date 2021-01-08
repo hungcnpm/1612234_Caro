@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { Button, FormGroup, FormControl, FormLabel } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import '../login/css/login.css';
 import authSvg from '../../assests/auth.svg';
@@ -58,6 +57,7 @@ function Register(props) {
                     type="password"
                     placeholder="Mật khẩu"
                     onChange={e => setPassword(e.target.value)}
+                    autoComplete = "on"
                     value={password}
                   />
                   <input
@@ -65,6 +65,7 @@ function Register(props) {
                     type="password"
                     placeholder="Nhập lại mật khẩu"
                     onChange={e => setRepassword(e.target.value)}
+                    autoComplete = "on"
                     value={repassword}
                   />
                   <input
@@ -84,7 +85,6 @@ function Register(props) {
                   <button
                     disabled={!validateForm()}
                     type="submit"
-                    block
                     className={`mt-4 tracking-wide font-semibold bg-indigo-500 text-gray-100 w-full py-4 rounded-lg ease-in-out flex items-center justify-center focus:shadow-outline focus:outline-none ${ validateForm() ? 'hover:bg-indigo-700 transition-all duration-300' : ''}`}
                   >
                     <i className="fas fa-user-plus fa 1x w-6  -ml-2" />

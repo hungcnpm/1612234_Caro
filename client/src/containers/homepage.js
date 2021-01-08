@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { Button } from 'react-bootstrap';
 import Game from './game';
 import fetchInfo from '../actions/actionGetInfo';
 import actionJoinRoom from '../actions/actionJoinRoom';
@@ -11,10 +10,12 @@ import Config from '../constants/configs';
 import logo from '../logo.svg';
 import socket from '../socket.io/socket.io';
 import authSvg from '../assests/welcome.svg';
-import { Link } from 'react-router-dom';
+import { Link , useHistory} from 'react-router-dom';
+
 
 function Homepage(props) {
     
+    const history = useHistory();
     // Prevent playing game
     const { actions } = props;
     const { didInvalidate } = props;
@@ -24,12 +25,8 @@ function Homepage(props) {
     const [buttonLabel, setButtonLabel] = useState('Tìm đối thủ');
     // If it is already invalidate
     if (didInvalidate) {
+      //wellcome page
         return (
-          // <center>
-          //     <img src={logo} className='App-logo-big' alt='logo' />
-          //     <div className='status'>ĐĂNG NHẬP ĐỂ TIẾP TỤC</div>
-          //     <Button className='logout-button' variant='info' onClick={() => window.location.href = '/login'}>Đăng nhập</Button>
-          // </center>
           <div className="min-h-screen bg-gray-100 text-gray-900 flex justify-center">
             <div className="max-w-screen-xl m-20 sm:m-20 bg-white shadow sm:rounded-lg flex justify-center flex-1">
               <div className="lg:w-1/2 xl:w-5/12 p-6 sm:p-12">
@@ -66,10 +63,8 @@ function Homepage(props) {
     }
     // If it is not invalidate (REQUESTING or SUCCESS or 'FIRST TIME ENTER')
     else {
-
         // If success, create a room
         if (userInfo) {
-
             socket.removeAllListeners();
             socket.on('joinroom-success', function (roomInfo) {
                 socket.joinroom = true;
@@ -87,8 +82,9 @@ function Homepage(props) {
             }
             // Choose to play with AI or other user
             else {
+          
                 return (
-                  
+                  //Home page
                   <div className="min-h-screen bg-gray-100 text-gray-900 flex justify-center">
                     <div className="max-w-screen-xl m-20 sm:m-20 bg-white shadow sm:rounded-lg flex justify-center flex-1">
                       <div className="lg:w-1/2 xl:w-8/12 p-6 sm:p-12">
@@ -153,12 +149,9 @@ function Homepage(props) {
             const token = localStorage.getItem('token');
             actions.fetchInfo(token);
         }
-        
+         
+        //Waiting page
         return (
-            // <center>
-            //     <img src={logo} className='App-logo-big' alt='logo' />
-            //     <div className='status'>... ĐANG KẾT NỐI ...</div>
-            // </center>
             <div className="min-h-screen bg-gray-100 text-gray-900 flex justify-center">
             <div className="max-w-screen-xl  m-40 sm:m-40 bg-white shadow sm:rounded-lg flex justify-center flex-1">
               <div className="lg:w-1/2 xl:w-5/12 p-6 sm:p-12 mt-12">
@@ -181,7 +174,7 @@ function Homepage(props) {
 
     function logOut() {
         localStorage.setItem('token', null);
-        window.location.href = '/login';
+        history.push('/login');
         actions.actionRefresh();
     }
 
@@ -198,7 +191,7 @@ function Homepage(props) {
 
     function changeInfo() {
         localStorage.setItem('userInfo', JSON.stringify(userInfo));
-        window.location.href = '/changeinfo';
+        history.push('/changeinfo') ;
     }
 }
 
@@ -208,6 +201,7 @@ function mapStateToProps(state) {
         isFetching: state.infoReducers.isFetching,
         didInvalidate: state.infoReducers.didInvalidate,
         userInfo: state.infoReducers.userInfo,
+        message: state.infoReducers.message,
         roomInfo: state.roomReducers.roomInfo
     };
 }

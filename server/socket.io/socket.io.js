@@ -57,6 +57,9 @@ module.exports = function (io, socket) {
   
           // fill empty seat and join room
           listRooms[i].playerO = data.fullname;
+          listRooms[i].playerOWin = data.winCount;
+          listRooms[i].playerODraw = data.drawCount;
+          listRooms[i].playerOlose = data.loseCount;
           socket.room = listRooms[i].id;
           socket.join(socket.room);
   
@@ -72,7 +75,13 @@ module.exports = function (io, socket) {
       var room = {
         id: data.username + Date.now(),
         playerX: data.fullname,
-        playerO: null
+        playerXWin: data.winCount,
+        playerXDraw: data.drawCount,
+        playerXLose: data.loseCount,
+        playerO: null,
+        playerOWin: null,
+        playerODraw: null,
+        playerOlose: null
       }
       listRooms.push(room);
   

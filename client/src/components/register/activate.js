@@ -10,14 +10,15 @@ const Activate = props => {
   const { actions } = props;
   useEffect(() => {
     let tokenParam = props.match.params.token;
-    let { username, hash, email, fullname } = jwt.decode(tokenParam);
+    let {  fullname } = jwt.decode(tokenParam);
 
     if (tokenParam) {
       setFullname(fullname);
       setToken(tokenParam);
     }
-    console.log(token, fullname);
   }, [props.match.params]);
+  
+  
   const handleSubmit = e => {
     e.preventDefault();
     actions.fetchActive(token);

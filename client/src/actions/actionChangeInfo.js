@@ -6,7 +6,8 @@ export function actionChangeInfo(status, message) {
     return {
         type: ActionType.CHANGE_INFO,
         status,
-        message
+        message, 
+        
     };
 }
 

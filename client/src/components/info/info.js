@@ -1,13 +1,12 @@
 import React, { useState } from 'react';
-import { Button, FormGroup, FormControl, FormLabel } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
+import { Link , useHistory} from 'react-router-dom';
 import '../login/css/login.css';
 import axios from 'axios';
 import defaultAvatar from '../../images/boy.png'
 import authSvg from '../../assests/update.svg';
 
 function Info(props) {
-
+  const history = useHistory();
     const { message } = props;
     const { actions } = props;
 
@@ -18,13 +17,13 @@ function Info(props) {
     const [file, setFile] = useState('');
     const [buttonLabel, setButtonLabel] = useState('Đăng ảnh');
     const [imgSrc, setImgSrc] = useState(localStorage.getItem('avatar_' + (userInfo ? userInfo.username : '')) || defaultAvatar);
-
-    localStorage.setItem(userInfo, null);
+    
+    localStorage.setItem('userInfo', null);
     if (!userInfo) {
-        window.location.href = '/';
+        history.push('/login');
         return;
     }
-
+    
     // If local storage has no avatar link
     if (imgSrc === defaultAvatar) {
         getAvatar();
@@ -112,6 +111,7 @@ function Info(props) {
                   />
                   <input
                     className="w-full px-8 py-3 rounded-lg font-medium bg-gray-100 border border-gray-200 placeholder-gray-500 text-sm focus:outline-none focus:border-gray-400 focus:bg-white mt-4"
+                    autoComplete="on"
                     placeholder="Mật khẩu cũ (bỏ trống nếu không đổi)"
                     value={oldPassword}
                     onChange={e => setOldPassword(e.target.value)}
@@ -119,6 +119,7 @@ function Info(props) {
                   />
                   <input
                     className="w-full px-8 py-3 rounded-lg font-medium bg-gray-100 border border-gray-200 placeholder-gray-500 text-sm focus:outline-none focus:border-gray-400 focus:bg-white mt-4"
+                    autoComplete="on"
                     type="password"
                     placeholder="Mật khẩu mới (bỏ trống nếu không đổi)"
                     onChange={e => setPassword(e.target.value)}
@@ -128,6 +129,7 @@ function Info(props) {
 
                   <input
                     className="w-full px-8 py-3 rounded-lg font-medium bg-gray-100 border border-gray-200 placeholder-gray-500 text-sm focus:outline-none focus:border-gray-400 focus:bg-white mt-4"
+                    autoComplete="on"
                     type="password"
                     placeholder="Nhập lại mật khẩu mới"
                     onChange={e => setRepassword(e.target.value)}
@@ -136,6 +138,7 @@ function Info(props) {
                   />
                   <input
                     className="w-full px-8 py-3 rounded-lg font-medium bg-gray-100 border border-gray-200 placeholder-gray-500 text-sm focus:outline-none focus:border-gray-400 focus:bg-white mt-4"
+                    autoComplete="on"
                     placeholder="Họ tên (bắt buộc)"
                     onChange={e =>
                       setUserInfo({
@@ -157,7 +160,6 @@ function Info(props) {
                   ></input>
                   <button
                     type="button"
-                    block
                     as="input"
                     variant="warning"
                     onClick={e => uploadImage(e)}
@@ -170,7 +172,6 @@ function Info(props) {
                   </button>
                   <button
                     type="submit"
-                    block
                     disabled={!validateForm()}
                     className={`mt-4 tracking-wide font-semibold bg-indigo-500 text-gray-100 w-full py-4 rounded-lg ${
                       validateForm()

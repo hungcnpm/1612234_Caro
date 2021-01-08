@@ -32,7 +32,6 @@ function Game(props) {
 
     // Setup socket
     setupSocket();
-
     // Setup chat engine
     const { chatHistory } = props;
     const [chatMessage, setChatMessage] = useState('');
@@ -65,6 +64,7 @@ function Game(props) {
     // Setup disable state for components
     const oneIsDisconnect = roomInfo.playerO === 'DISCONNECTED' || roomInfo.playerX === 'DISCONNECTED';
     const needToDisable = winCells || oneIsDisconnect || isFetching;
+    var playWithAI = false;
 
     // Setup board game
     const current = history[stepNumber];
@@ -75,7 +75,7 @@ function Game(props) {
         const content = move ? `Xin về lượt #${
             Config.makeTwoDigits(move)}:
             (${Config.makeTwoDigits(history[move].x)},${Config.makeTwoDigits(history[move].y)})`
-        : `Xin chơi lại từ đầu !`;
+        : `Chơi lại !`;
         const variant = (move === stepNumber) ? `danger` : `success`;
         
         // Get current move
@@ -112,7 +112,25 @@ function Game(props) {
     if (ourname !== roomInfo.playerX) {
         isPlayerX = ourname !== roomInfo.playerO;
     }
-    const rivalname = isPlayerX ? roomInfo.playerO : roomInfo.playerX;
+    var rivalname, rivalWin, rivalDraw, rivalLose;
+    rivalname = isPlayerX ? roomInfo.playerO : roomInfo.playerX;
+    //check if play wit bot
+    if(rivalname === 'I am Bot'){
+        playWithAI = true;
+        console.log(roomInfo);
+    }
+    else{
+        if(rivalname === roomInfo.playerX){
+            rivalWin = roomInfo.playerXWin;
+            rivalDraw = roomInfo.playerXLose;
+            rivalLose = roomInfo.playerXDraw;
+        }
+        else{
+            rivalWin = roomInfo.playerOWin;
+            rivalDraw = roomInfo.playerOLose;
+            rivalLose = roomInfo.playerODraw;
+        }
+    }
 
     return (
         <div className='App'>
@@ -131,7 +149,8 @@ function Game(props) {
                             <Card.Body className='card-body'>
                                 <Card.Title className='card-title'>[{isPlayerX ? `X` : `O`}] Mình [{isPlayerX ? `X` : `O`}]</Card.Title>
                                 <Card.Text className='card-text-bold'><b>{ourname}</b></Card.Text>
-                                <img src={avatarSrc} className='avatar-small justify-center' alt='avatar'/><br></br>
+                                <img src={avatarSrc} className='avatar-small' alt='avatar'/><br></br>
+                                <p className='card-text'>Thắng:{userInfo.winCount}   Hòa:{userInfo.drawCount}   Bại:{userInfo.loseCount}</p>
                                 <Button className='logout-button' variant='info' onClick={() => goHome()}>Trang chủ</Button>
                             </Card.Body>
                         </Card>
@@ -142,6 +161,7 @@ function Game(props) {
                                 <Card.Title className='card-title'>[{!isPlayerX ? `X` : `O`}] Đối thủ [{!isPlayerX ? `X` : `O`}]</Card.Title>
                                 <Card.Text className='card-text-bold'><b>{rivalname}</b></Card.Text>
                                 <img src={rivalAvatarSrc} className='avatar-small' alt='rivalAvatar'/><br></br>
+                                <p className='card-text'>Thắng:{rivalWin}   Hòa:{rivalDraw}   Bại:{rivalLose}</p>
                                 <Button className='logout-button' variant='info' onClick={() => requestSurrender()}
                                         disabled={needToDisable}>Đầu hàng</Button>&nbsp;&nbsp;
                                 <Button className='logout-button' variant='info' onClick={() => requestCeasefire()}
@@ -155,7 +175,7 @@ function Game(props) {
                                 currentCell={[current.x, current.y]}
                                 handleClick={(i, j) => userClick(i, j)}/>
                     </div>
-                    <div>
+                    <div className={playWithAI?'right':''}>
                         {/* Change sort mode */}
                         <Button className='change-sort-button' onClick={actions.actionChangeSort}>{sortMode}</Button>
                         <br></br>
@@ -163,23 +183,26 @@ function Game(props) {
                             <ol >{moves}</ol>
                         </ScrollToBottom>
                         {/* Chat panel */}
-                        <Card className='card-chat'>
-                            <Card.Body className='card-body'>
-                                <Card.Title className='card-title'>Nhắn tin</Card.Title>
-                                <div className='scroll-view-chat'>
-                                    {chatHistoryUI}
-                                </div>
-                                <form onSubmit={e => handleChat(e)}>
-                                    <FormControl type='chatMessage'
-                                        className='input-message'
-                                        placeholder='Nhập và nhấn Enter'
-                                        value={chatMessage}
-                                        disabled={needToDisable}
-                                        onChange={e => setChatMessage(e.target.value)}>
-                                    </FormControl>
-                                </form>
-                            </Card.Body>
-                        </Card>
+                        {!playWithAI ? 
+                         <Card className='card-chat' >
+                         <Card.Body className='card-body'>
+                             <Card.Title className='card-title'>Nhắn tin</Card.Title>
+                             <div className='scroll-view-chat'>
+                                 {chatHistoryUI}
+                             </div>
+                             <form onSubmit={e => handleChat(e)}>
+                                 <FormControl type='chatMessage'
+                                     className='input-message'
+                                     placeholder='Nhập và nhấn Enter'
+                                     value={chatMessage}
+                                     disabled={needToDisable}
+                                     onChange={e => setChatMessage(e.target.value)}>
+                                 </FormControl>
+                             </form>
+                         </Card.Body>
+                     </Card>
+                      : null}
+                       
                     </div>
                 </div>
             </header>
