@@ -26,6 +26,8 @@ class ActionType extends Component {
 
     static REQUEST = 'REQUEST';
 
+    static RECORD_RESULT = 'RECORD_RESULT';
+
     static RESET_GAME = 'RESET_GAME';
 
     static REFRESH = 'REFRESH';

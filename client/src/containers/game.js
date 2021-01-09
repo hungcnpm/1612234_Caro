@@ -8,6 +8,7 @@ import actionChat from '../actions/actionChat';
 import actionRequest from '../actions/actionRequest';
 import actionResetGame from '../actions/actionResetGame';
 import actionRefresh from '../actions/actionRefresh';
+import fetchRecord from '../actions/actionRecordResult'
 import Game from '../components/game/game';
 
 // Connect variables
@@ -22,7 +23,7 @@ function mapStateToProps(state) {
         message: state.gameReducers.message,
         userInfo: state.infoReducers.userInfo,
         roomInfo: state.roomReducers.roomInfo,
-        chatHistory: state.roomReducers.chatHistory
+        chatHistory: state.roomReducers.chatHistory,
     };
 }
 
@@ -37,7 +38,8 @@ function mapDispatchToProps(dispatch) {
             actionChat,
             actionRequest,
             actionResetGame,
-            actionRefresh
+            actionRefresh, 
+            fetchRecord,
         }, dispatch)
     };
 }

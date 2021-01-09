@@ -1,12 +1,17 @@
 import React from 'react';
 import Config from '../../constants/configs';
+import { connect } from 'react-redux';
+import fetchRecord from '../../actions/actionRecordResult'
+import { bindActionCreators } from 'redux';
 
 function Status(props) {
+    const {actions} = props;
     const { winCells } = props;
     const { rivalname } = props;
     const { isPlayerX } = props;
     const { messages } = props;
-    
+    const {playWithAI} = props;
+    const {username} = props;
     let message;
 
     if (rivalname === 'DISCONNECTED') {
@@ -17,9 +22,14 @@ function Status(props) {
     }
     else if (winCells) {
         const winner = props.nextMove === Config.xPlayer ? Config.oPlayer : Config.xPlayer;
-        message = `Chúc mừng bạn đã giành chiến thắng !`;
+        if(!playWithAI)
+            actions.fetchRecord(username, 'win');
+        message = `Chúc  mừng bạn đã giành chiến thắng !`;
 
         if ((isPlayerX && winner === Config.oPlayer) || (!isPlayerX && winner === Config.xPlayer)) {
+
+            if(!playWithAI)
+                actions.fetchRecord(username, 'lose');
             message = `Rất tiếc bạn đã thua cuộc !`;
         }
     }
@@ -30,5 +40,14 @@ function Status(props) {
         <div className='status'><b>{message}</b></div>
     )
 }
-
-export default Status;
+function mapStateToProps(state) {
+    return {userInfo: state.infoReducers.userInfo}
+}
+function mapDispatchToProps(dispatch) {
+    return {
+        actions: bindActionCreators({
+            fetchRecord,
+        }, dispatch)
+    };
+}
+export default connect(mapStateToProps, mapDispatchToProps)(Status);

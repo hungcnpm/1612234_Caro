@@ -10,10 +10,11 @@ import socket from '../../socket.io/socket.io';
 import ScrollToBottom from 'react-scroll-to-bottom';
 import defaultAvatar from '../../images/boy.png'
 import axios from 'axios';
+import {useHistory } from 'react-router-dom';
 
 function Game(props) {
 
-
+    const path = useHistory();
     const { actions } = props;
     const { history } = props;
     const { stepNumber } = props;
@@ -112,23 +113,25 @@ function Game(props) {
     if (ourname !== roomInfo.playerX) {
         isPlayerX = ourname !== roomInfo.playerO;
     }
-    var rivalname, rivalWin, rivalDraw, rivalLose;
+    var rivalname, rivalUsername, rivalWin, rivalDraw, rivalLose;
     rivalname = isPlayerX ? roomInfo.playerO : roomInfo.playerX;
     //check if play wit bot
-    if(rivalname === 'I am Bot'){
+    if(rivalname === 'Bot'){
         playWithAI = true;
-        console.log(roomInfo);
     }
+    //set the rival information
     else{
         if(rivalname === roomInfo.playerX){
+            rivalUsername = roomInfo.playerXUsername;
             rivalWin = roomInfo.playerXWin;
-            rivalDraw = roomInfo.playerXLose;
-            rivalLose = roomInfo.playerXDraw;
+            rivalDraw = roomInfo.playerXDraw;
+            rivalLose = roomInfo.playerXLose;
         }
         else{
             rivalWin = roomInfo.playerOWin;
-            rivalDraw = roomInfo.playerOLose;
-            rivalLose = roomInfo.playerODraw;
+            rivalDraw = roomInfo.playerODraw;
+            rivalLose = roomInfo.playerOLose;
+            rivalUsername = roomInfo.playerOUsername;
         }
     }
 
@@ -140,7 +143,11 @@ function Game(props) {
                     winCells={winCells}
                     rivalname={roomInfo.playerO}
                     messages={message}
-                    isPlayerX={isPlayerX}/>
+                    isPlayerX={isPlayerX}
+                    playWithAI={playWithAI}
+                    username={userInfo.username}
+                    actions = {actions}
+                    />
                 <Dialog ref={(el) => setDialog(el)} />
                 <div className='board-game'>
                     <div>
@@ -150,7 +157,7 @@ function Game(props) {
                                 <Card.Title className='card-title'>[{isPlayerX ? `X` : `O`}] Mình [{isPlayerX ? `X` : `O`}]</Card.Title>
                                 <Card.Text className='card-text-bold'><b>{ourname}</b></Card.Text>
                                 <img src={avatarSrc} className='avatar-small' alt='avatar'/><br></br>
-                                <p className='card-text'>Thắng:{userInfo.winCount}   Hòa:{userInfo.drawCount}   Bại:{userInfo.loseCount}</p>
+                                <p className='card-text'>Thắng:{userInfo.WinCount}   Hòa:{userInfo.DrawCount}   Bại:{userInfo.LoseCount}</p>
                                 <Button className='logout-button' variant='info' onClick={() => goHome()}>Trang chủ</Button>
                             </Card.Body>
                         </Card>
@@ -161,11 +168,11 @@ function Game(props) {
                                 <Card.Title className='card-title'>[{!isPlayerX ? `X` : `O`}] Đối thủ [{!isPlayerX ? `X` : `O`}]</Card.Title>
                                 <Card.Text className='card-text-bold'><b>{rivalname}</b></Card.Text>
                                 <img src={rivalAvatarSrc} className='avatar-small' alt='rivalAvatar'/><br></br>
-                                <p className='card-text'>Thắng:{rivalWin}   Hòa:{rivalDraw}   Bại:{rivalLose}</p>
+                                <p hidden = {playWithAI} className='card-text'>Thắng:{rivalWin}   Hòa:{rivalDraw}   Bại:{rivalLose}</p>
                                 <Button className='logout-button' variant='info' onClick={() => requestSurrender()}
-                                        disabled={needToDisable}>Đầu hàng</Button>&nbsp;&nbsp;
+                                        disabled={needToDisable||playWithAI}>Đầu hàng</Button>&nbsp;&nbsp;
                                 <Button className='logout-button' variant='info' onClick={() => requestCeasefire()}
-                                        disabled={needToDisable}>Xin hoà</Button>
+                                        disabled={needToDisable||playWithAI}>Xin hoà</Button>
                             </Card.Body>
                         </Card>
                     </div>
@@ -175,7 +182,7 @@ function Game(props) {
                                 currentCell={[current.x, current.y]}
                                 handleClick={(i, j) => userClick(i, j)}/>
                     </div>
-                    <div className={playWithAI?'right':''}>
+                    <div className={playWithAI ? 'right' : ''}>
                         {/* Change sort mode */}
                         <Button className='change-sort-button' onClick={actions.actionChangeSort}>{sortMode}</Button>
                         <br></br>
@@ -211,7 +218,7 @@ function Game(props) {
 
     function goHome() {
         actions.actionRefresh();
-        window.location.href = '/';
+        path.push('/');
     }
 
     function checkWin(row, col, user, stepNumber) {
@@ -467,13 +474,15 @@ function Game(props) {
             }
         });
 
-        // Surrender / Ceasefire
+        // Surrender 
         socket.on('surrender-request', function (data) {
             doConfirm('Đối thủ muốn đầu hàng ván này !', () => {
                 socket.emit('surrender-result', {
-                    message: 'yes'
+                    message: 'yes',
                 });
                 actions.actionRequest(true, `Chúc mừng bạn đã giành chiến thắng !`);
+                actions.fetchRecord(userInfo.username, 'win');
+
             }, () => {
                 socket.emit('surrender-result', {
                     message: 'no'
@@ -484,6 +493,8 @@ function Game(props) {
         socket.on('surrender-result', function (data) {
             if (data.message === `yes`) {
                 actions.actionRequest(true, `Bạn đã chấp nhận thua cuộc !`);
+                console.log("lose");
+                actions.fetchRecord(userInfo.username, 'lose');
                 if (!data.noAlert) {
                     dialog.showAlert(`Đối thủ đã chấp nhận lời đầu hàng!`);
                 }
@@ -493,12 +504,14 @@ function Game(props) {
                 dialog.showAlert(`Đối thủ đã từ chối lời đầu hàng!`);
             }
         });
+        // Ceasefire
         socket.on('ceasefire-request', function (data) {
             doConfirm('Đối thủ muốn xin hoà ván này !', () => {
                 socket.emit('ceasefire-result', {
-                    message: 'yes'
+                    message: 'yes',
                 });
                 actions.actionRequest(true, `Đã thống nhất hoà nhau !`);
+                actions.fetchRecord(userInfo.username, 'draw');
             }, () => {
                 socket.emit('ceasefire-result', {
                     message: 'no'
@@ -509,6 +522,7 @@ function Game(props) {
         socket.on('ceasefire-result', function (data) {
             if (data.message === 'yes') {
                 actions.actionRequest(true, `Đã thống nhất hoà nhau !`);
+                actions.fetchRecord(userInfo.username, 'draw');
                 if (!data.noAlert) {
                     dialog.showAlert(`Đối thủ đã chấp nhận hoà!`);
                 }

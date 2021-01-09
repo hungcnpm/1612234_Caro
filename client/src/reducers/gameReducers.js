@@ -41,7 +41,16 @@ export default function handleGame(state = Config.initialState, action) {
                 isFetching: action.isRequesting,
                 message: action.message
             };
-        
+        case ActionType.RECORD_RESULT:
+            if(action.status === 'SUCCESS'){
+                return {
+                    ...state,
+                    userInfo: null
+                }
+            }
+            else{
+                return state;
+            }
         case ActionType.RESET_GAME:
             return {
                 ...state,

@@ -57,9 +57,10 @@ module.exports = function (io, socket) {
   
           // fill empty seat and join room
           listRooms[i].playerO = data.fullname;
-          listRooms[i].playerOWin = data.winCount;
-          listRooms[i].playerODraw = data.drawCount;
-          listRooms[i].playerOlose = data.loseCount;
+          listRooms[i].playOUsername = data.username,
+          listRooms[i].playerOWin = data.WinCount;
+          listRooms[i].playerODraw = data.DrawCount;
+          listRooms[i].playerOLose = data.LoseCount;
           socket.room = listRooms[i].id;
           socket.join(socket.room);
   
@@ -75,10 +76,12 @@ module.exports = function (io, socket) {
       var room = {
         id: data.username + Date.now(),
         playerX: data.fullname,
-        playerXWin: data.winCount,
-        playerXDraw: data.drawCount,
-        playerXLose: data.loseCount,
+        playerXWin: data.WinCount,
+        playerXDraw: data.DrawCount,
+        playerXLose: data.LoseCount,
+        playerXUsername: data.username,
         playerO: null,
+        playerOUsername: null,
         playerOWin: null,
         playerODraw: null,
         playerOlose: null
@@ -104,7 +107,7 @@ module.exports = function (io, socket) {
       var room = {
         id: data.username + Date.now(),
         playerX: data.fullname,
-        playerO: 'I am Bot'
+        playerO: 'Bot'
       }
       listRooms.push(room);
   
@@ -189,7 +192,7 @@ module.exports = function (io, socket) {
       if (socket.withBot) {
         socket.emit('surrender-result', {
           message: 'yes',
-          noAlert: true
+          noAlert: true,
         });
       }
       else {

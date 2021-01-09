@@ -12,9 +12,9 @@ router.get('/me', (req, res, next) => {
             username: user.username ,
             email: user.email,
             fullname: user.fullname,
-            winCount: user.WinCount,
-            loseCount: user.DrawCount,
-            drawCount: user.LoseCount
+            WinCount: user.WinCount,
+            LoseCount: user.LoseCount,
+            DrawCount: user.DrawCount
         }
         res.status(200).json(info);
     }

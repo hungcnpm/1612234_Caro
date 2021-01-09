@@ -394,5 +394,67 @@ router.post('/changeinfo', passport.authenticate('jwt', {session: false}), (req,
         })
     }
 });
+router.post('/result', passport.authenticate('jwt', {session: false}), (req, res, next) =>{
+  var username = req.body.username;
+  var result = req.body.result;
+  
+  // check params
+  if (!username) {
+    res.status(400).json({
+        message: 'Vui lòng nhập đầy đủ thông tin'
+    });
+  }
+    else{
+      userModel
+        .get(username)
+        .then((rows) => {
+          if (rows.length === 0) {
+            return res.status(400).json({
+              message: "Tài khoản không tồn tại",
+            });
+          }
+          var user = rows[0];
+          var entity = {
+            username: username,
+          };
+          var status = '';
+          switch (result){
+            case 'win': {
+              entity.WinCount = user.WinCount + 1;
+              status =  "Chúc mừng bạn đã giành được chiến thắng !";
+              break;
+            }
+            case 'lose':{
+              entity.LoseCount = user.LoseCount + 1;
+              status = "Rất tiếc bạn đã thất bại !";
+              break;
+            }
+            default:{
+              entity.DrawCount = user.DrawCount + 1;
+              status =  "Đã thống nhất hòa nhau !";
+              break;
+            }
+          }
+          userModel
+            .put(entity)
+            .then((id) => {
+              return res.status(200).json({
+                message: status
+              });
+            })
+            .catch((err) => {
+             
+              return res.status(400).json({
+                message: err,
+              });
+            });
+        })
+        .catch((err) => {
+          return res.status(400).json({
+            message: err,
+          });
+        });
+}
+})
 
 module.exports = router;
