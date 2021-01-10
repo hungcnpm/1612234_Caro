@@ -23,6 +23,7 @@ function Homepage(props) {
     const { userInfo } = props;
     const { roomInfo } = props;
     const [buttonLabel, setButtonLabel] = useState('Tìm đối thủ');
+    var iswating = false;
     // If it is already invalidate
     if (didInvalidate) {
       //wellcome page
@@ -65,6 +66,7 @@ function Homepage(props) {
     else {
         // If success, create a room
         if (userInfo) {
+
             socket.removeAllListeners();
             socket.on('joinroom-success', function (roomInfo) {
                 socket.joinroom = true;
@@ -82,7 +84,6 @@ function Homepage(props) {
             }
             // Choose to play with AI or other user
             else {
-          
                 return (
                   //Home page
                   <div className="min-h-screen bg-gray-100 text-gray-900 flex justify-center">
@@ -171,7 +172,7 @@ function Homepage(props) {
             
         );
     }
-
+    
     function logOut() {
         localStorage.setItem('token', null);
         history.push('/login');

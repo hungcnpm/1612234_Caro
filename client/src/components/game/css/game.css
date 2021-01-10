@@ -54,7 +54,7 @@ ol, ul {
 }
 
 .status {
-  color: white;
+  color: rgb(70, 21, 184);
   font: 20px 'Courier New', Courier, monospace;
   margin-bottom: 20px;
 }
@@ -180,7 +180,21 @@ ol, ul {
   margin-left: 30px;
 
 }
-
+.count-down{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 30px;
+  font: bold 30px 'Courier New', Courier, monospace;
+  margin-left: 120px;
+  margin-top: 25px;
+}
+.count-down-safe{
+  color: rgb(51, 53, 172);
+}
+.count-down-danger{
+  color: rgb(231, 5, 5);
+}
 .card-body {
   padding: 0px;
   background: rgb(222, 222, 222);
