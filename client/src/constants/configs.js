@@ -41,6 +41,7 @@ class Config extends Component {
             nextMove: Config.xPlayer,
             stepNumber: 0,
             winCells: null,
+            isTimeOut: false,
             accendingMode: false,
         }
     };

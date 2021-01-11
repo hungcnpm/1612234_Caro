@@ -29,11 +29,11 @@ var exports_3 = {
     'client-domain': 'https://btgk-1612422.herokuapp.com/',
     'server-domain': 'https://btcn06-1612422.herokuapp.com/',
     'database': {
-        'host': 'sql12.freemysqlhosting.net',
+        'host': 'td5l74lo6615qq42.cbetxkdyhwsb.us-east-1.rds.amazonaws.com	',
         'port': '3306',
-        'user': 'sql12308370',
-        'password': 'xLicY5Js7i',
-        'database': 'sql12308370'
+        'user': 'irnr7az5e1mz410v',
+        'password': 'mk78cdfpdnhbwnxo',
+        'database': 'rslv4nchyp3e14oz'
     }
 }
 

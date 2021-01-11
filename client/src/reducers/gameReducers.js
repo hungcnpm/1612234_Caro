@@ -50,6 +50,15 @@ export default function handleGame(state = Config.initialState, action) {
             }
             else{
                 return state;
+            };
+        case ActionType.TIME_OUT:
+            return{
+                ...state,
+                data: {
+                    ...state.data,
+                    isTimeOut: action.isTimeOut,
+                   
+                }
             }
         case ActionType.RESET_GAME:
             return {

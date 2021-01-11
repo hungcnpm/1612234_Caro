@@ -25,7 +25,7 @@ function Game(props) {
     const { roomInfo } = props;
     const { isFetching } = props;
     const { message } = props;
-
+    const {isTimeOut} = props;
     // Temporary states
     const [avatarSrc, setAvatarSrc] = useState(localStorage.getItem('avatar_' + userInfo.username) || defaultAvatar);
     const [rivalAvatarSrc, setRivalAvatarSrc] = useState(defaultAvatar);
@@ -33,7 +33,7 @@ function Game(props) {
     const initialMinute = 0,initialSeconds = 20 ;
     const [ minutes, setMinutes ] = useState(initialMinute);
     const [seconds, setSeconds ] =  useState(initialSeconds);
-    const [isEnd, setIsEnd] =  useState(false);
+    const [isOut, setIsOut] = useState(null);
     var myInterval;
     useEffect(()=>{
             myInterval = setInterval(() => {
@@ -45,7 +45,8 @@ function Game(props) {
                     if (minutes === 0) {
                         if(!winCells)
                         {
-                            setIsEnd(true);
+                            actions.actionTimeOut(true);
+                            console.log(isTimeOut);
                         }
                         clearInterval(myInterval)
                     } else {
@@ -59,11 +60,8 @@ function Game(props) {
               };
         });
     function ResetCountDownt(){
-        setMinutes(0);
+        setMinutes(3);
         setSeconds(11);
-    }
-    function deleteCountDown(){
-        setSeconds(0);
     }
     
     // Setup socket
@@ -99,7 +97,7 @@ function Game(props) {
 
     // Setup disable state for components
     const oneIsDisconnect = roomInfo.playerO === 'DISCONNECTED' || roomInfo.playerX === 'DISCONNECTED';
-    const needToDisable = winCells || oneIsDisconnect || isFetching || isEnd;
+    const needToDisable = winCells || oneIsDisconnect || isFetching || isTimeOut;
     var playWithAI = false;
 
     // Setup board game
@@ -183,7 +181,8 @@ function Game(props) {
             playWithAI={playWithAI}
             username={userInfo.username}
             actions={actions}
-            isEnd = {isEnd}
+            isTimeOut = {isTimeOut}
+            isOut = {isOut}
             //handleEnd = {deleteCountDown}
           />
           <Dialog ref={el => setDialog(el)} />
@@ -213,7 +212,7 @@ function Game(props) {
                   </Button>
                 </Card.Body>
               </Card>
-              <div hidden = {isEnd || winCells}>
+              <div hidden = {isTimeOut || winCells}>
                 {minutes === 0 && seconds === 0 ? null : (
                   <h1 className = {`count-down ${seconds > 10 ? `count-down-safe` : `count-down-danger` }`}>
                     {' '}
@@ -310,8 +309,17 @@ function Game(props) {
     );
 
     function goHome() {
+        socket.emit('out-room', userInfo.username);
+        if(!isTimeOut && !playWithAI)
+        {
+            console.log("Log lose");
+            actions.fetchRecord(userInfo.username, 'lose');
+        }
         actions.actionRefresh();
-        window.location.href = '/';
+        path.push('/');
+        // setTimeout(() => {
+        //     path.push('/');
+        // }, 100);;
     }
 
     function checkWin(row, col, user, stepNumber) {
@@ -563,6 +571,13 @@ function Game(props) {
                 actions.actionJoinRoom(data);
             }
         });
+        socket.on('out-room', function(data){
+            if(!playWithAI && userInfo.username !== data && !isTimeOut && !winCells )
+            {
+                setIsOut(data);
+                actions.actionTimeOut(true);
+            }
+        })
         socket.on('chat', function (data) {
             if (data.message.startsWith('@@@AVATAR_SIGNAL@@@')) {
                 if (data.sender === 'ĐThủ') {
@@ -586,8 +601,8 @@ function Game(props) {
                     message: 'yes',
                 });
                 actions.actionRequest(true, `Chúc mừng bạn đã giành chiến thắng !`);
+                actions.actionTimeOut(true);;
                 actions.fetchRecord(userInfo.username, 'win');
-                deleteCountDown();
 
             }, () => {
                 socket.emit('surrender-result', {
@@ -599,8 +614,7 @@ function Game(props) {
         socket.on('surrender-result', function (data) {
             if (data.message === `yes`) {
                 actions.actionRequest(true, `Bạn đã chấp nhận thua cuộc !`);
-                deleteCountDown();
-                console.log("lose");
+                actions.actionTimeOut(true);
                 actions.fetchRecord(userInfo.username, 'lose');
                 if (!data.noAlert) {
                     dialog.showAlert(`Đối thủ đã chấp nhận lời đầu hàng!`);
@@ -618,7 +632,7 @@ function Game(props) {
                     message: 'yes',
                 });
                 actions.actionRequest(true, `Đã thống nhất hoà nhau !`);
-                deleteCountDown();
+                actions.actionTimeOut(true);
                 actions.fetchRecord(userInfo.username, 'draw');
             }, () => {
                 socket.emit('ceasefire-result', {
@@ -630,7 +644,7 @@ function Game(props) {
         socket.on('ceasefire-result', function (data) {
             if (data.message === 'yes') {
                 actions.actionRequest(true, `Đã thống nhất hoà nhau !`);
-                deleteCountDown();
+                actions.actionTimeOut(true);
                 actions.fetchRecord(userInfo.username, 'draw');
                 if (!data.noAlert) {
                     dialog.showAlert(`Đối thủ đã chấp nhận hoà!`);
@@ -676,7 +690,7 @@ function Game(props) {
             doConfirm('Đối thủ muốn chơi lại !', () => {
                 actions.actionResetGame(isPlayerX ? Config.xPlayer : Config.oPlayer);
                 ResetCountDownt();
-                setIsEnd(false);
+                actions.actionTimeOut(false);
                 socket.emit('play-again-result', {
                     message: 'yes'
                 });
@@ -689,7 +703,7 @@ function Game(props) {
         socket.on('play-again-result', function (data) {
             if (data.message === 'yes') {
                 actions.actionResetGame(isPlayerX ? Config.oPlayer : Config.xPlayer);
-                setIsEnd(false);
+                actions.actionTimeOut(false);
                 ResetCountDownt();
                 if (!data.noAlert) {
                     dialog.showAlert(`Đối thủ đã đồng ý!`);
@@ -699,7 +713,7 @@ function Game(props) {
                 dialog.showAlert(`Đối thủ không đồng ý!`);
             }
         });
-
+        
         // Reconnect if browser refresh
         if (!socket.joinroom) {
             socket.joinroom = true;

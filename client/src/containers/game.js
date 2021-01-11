@@ -10,6 +10,7 @@ import actionResetGame from '../actions/actionResetGame';
 import actionRefresh from '../actions/actionRefresh';
 import fetchRecord from '../actions/actionRecordResult'
 import Game from '../components/game/game';
+import actionTimeOut from '../actions/actionTimeOut'
 
 // Connect variables
 function mapStateToProps(state) {
@@ -18,6 +19,7 @@ function mapStateToProps(state) {
         nextMove: state.gameReducers.data.nextMove,
         stepNumber: state.gameReducers.data.stepNumber,
         winCells: state.gameReducers.data.winCells,
+        isTimeOut: state.gameReducers.data.isTimeOut,
         accendingMode: state.gameReducers.data.accendingMode,
         isFetching: state.gameReducers.isFetching,
         message: state.gameReducers.message,
@@ -40,6 +42,7 @@ function mapDispatchToProps(dispatch) {
             actionResetGame,
             actionRefresh, 
             fetchRecord,
+            actionTimeOut,
         }, dispatch)
     };
 }
