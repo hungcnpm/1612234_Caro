@@ -292,7 +292,6 @@ module.exports = function (io, socket) {
     socket.on('out-room', function(data){
       socket.leave(socket.room);
       socket.to(socket.room).emit('out-room', data);
-
     })
   
     socket.on('disconnect', function () {
